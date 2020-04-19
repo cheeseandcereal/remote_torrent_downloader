@@ -1,3 +1,4 @@
+import os
 import sys
 import pathlib
 import shutil
@@ -41,6 +42,14 @@ class DownloadObject(object):
         # Run the lftp command, linking up its stdout/stderr with host's stdout and stderr
         subprocess.run(["lftp", "-c", f"{open_cmd} && {fetch_cmd}"], check=True, stdout=sys.stdout, stderr=sys.stderr)
         print(f"Finished downloading {self.remote_path}")
+        # chmod stuff
+        os.chmod(temp_path, 0o777)
+        for dirpath, dirnames, filenames in os.walk(temp_path):
+            for dname in dirnames:
+                os.chmod(os.path.join(dirpath, dname), 0o777)
+            for fname in filenames:
+                os.chmod(os.path.join(dirpath, fname), 0o666)
+        # move final data
         shutil.move(str(temp_path), self.final_download_dir)
         # If completed, stop watching this torrent
         state.remove_watching_torrent(self.infohash)
