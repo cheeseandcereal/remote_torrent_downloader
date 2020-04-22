@@ -1,7 +1,10 @@
 from typing import Dict
 import json
+import logging
 
 from downloader.state import config
+
+log = logging.getLogger("state")
 
 current_state = {}
 
@@ -10,14 +13,14 @@ def _load_state():
     global current_state
     try:
         with open(config.get_state_json_path()) as f:
-            current_state = json.loads(f.read())
+            current_state = json.load(f)
     except FileNotFoundError:
-        print("Warning: state file not found")
+        log.warning("state file not found")
 
 
 def _save_state():
     with open(config.get_state_json_path(), "w") as f:
-        f.write(json.dumps(current_state, indent=2))
+        json.dump(current_state, f, ensure_ascii=False, indent=2)
 
 
 def get_watching_torrents() -> Dict[str, Dict[str, str]]:
@@ -35,12 +38,12 @@ def remove_watching_torrent(torrent_id: str):
         del current_state["watching_torrents"][torrent_id]
         _save_state()
     except KeyError:
-        print(f"Warning: tried to delete torrent {torrent_id} which was not being watched")
+        log.warning(f"tried to delete torrent {torrent_id} which was not being watched")
 
 
-def add_watching_torrent(torrent_id: str, temp_dir: str, final_dir: str):
+def add_watching_torrent(torrent_id: str, temp_dir: str, final_dir: str, name: str = ""):
     _load_state()
     new_watching = current_state.get("watching_torrents", {})
-    new_watching[torrent_id] = {"temp_dir": temp_dir, "final_dir": final_dir}
+    new_watching[torrent_id] = {"temp_dir": temp_dir, "final_dir": final_dir, "name": name}
     current_state["watching_torrents"] = new_watching
     _save_state()

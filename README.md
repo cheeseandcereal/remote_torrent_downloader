@@ -12,25 +12,29 @@ A file called `config.json` must be present in the working directory of the prog
 
 An example configuration:
 
-```json
+```javascript
 {
-  "state_json": "state.json",
+  "state_json": "state.json",  // path to json file used for storing app state
+  "chmod_download": {  // set to false instead of object if you do not want to chmod downloaded files
+    "file": 436,  // 436 == 0o664
+    "folder": 509  // 509 == 0o775
+  },
   "sftp_host": "my.remote.host",
   "sftp_port": 22,
   "sftp_user": "user",
   "sftp_password": "leave as empty string if using public key",
-  "pget_conn": 25,
-  "mirror_parallel": 4,
-  "mirror_conn": 7,
+  "pget_conn": 25,  // when torrent is a single file, this is how many connections will be used with lftp pget
+  "mirror_parallel": 4,  // when torrent is a directory, this is how many files are downloaded simoultaneously
+  "mirror_conn": 7,  // when torrent is a directory, this is how many connections each currently downloading file gets
   "deluge_rpc_addr": "my.remote.host",
   "deluge_rpc_port": 54321,
   "deluge_rpc_user": "user",
   "deluge_rpc_password": "someRPCpasswordFromDelugeDaemon",
-  "torrent_watch_dirs": [
+  "torrent_watch_dirs": [  // Specify as many as desired
     {
-      "directory": "/home/user/Downloads/torrents",
-      "temp_download_dir": "/tmp",
-      "final_download_dir": "/home/user/Downloads"
+      "directory": "/home/user/Downloads/torrents",  // Directory to watch for .torrent or .magnet files
+      "temp_download_dir": "/tmp",  // Used for temporary storage for in-progress downloads
+      "final_download_dir": "/home/user/Downloads"  // Where finished downloads are moved
     }
   ]
 }

@@ -1,5 +1,6 @@
 from typing import List, Dict, Any
 import re
+import logging
 from base64 import b64encode
 from pathlib import PurePosixPath, Path
 
@@ -8,6 +9,8 @@ import deluge_client.client
 from downloader.model.download_obj import DownloadObject
 from downloader.state import config
 
+log = logging.getLogger("deluge")
+
 _torrent_exists_regex = re.compile(r"Torrent already in session \((.*)\)", re.IGNORECASE)
 
 client = deluge_client.client.DelugeRPCClient(**config.get_deluge_rpc_config(), decode_utf8=True, automatic_reconnect=True)
@@ -15,6 +18,7 @@ client = deluge_client.client.DelugeRPCClient(**config.get_deluge_rpc_config(), 
 
 def _connect_if_necessary():
     if not client.connected:
+        log.debug("Connecting to remote deluge daemon")
         client.connect()
 
 
@@ -22,7 +26,7 @@ def _filter_torrents_status_results(torrent_status_results: Any, watching_torren
     download_list: List[DownloadObject] = []
     for infohash, torrent_data in torrent_status_results.items():
         completed_time = torrent_data.get("completed_time", 0)
-        if completed_time > 0:
+        if completed_time > 0:  # Only completed torrents
             temp_dir = watching_torrents[infohash]["temp_dir"]
             final_dir = watching_torrents[infohash]["final_dir"]
             base_dir = torrent_data["download_location"]
@@ -52,7 +56,9 @@ def _check_torrent_exists_err(error: deluge_client.client.RemoteException) -> st
     # Check if the error is that the torrent already exists. If it does, return existing infohash
     match = _torrent_exists_regex.match(str(error))
     if match:
-        return match.group(1)
+        existing_infohash = match.group(1)
+        log.debug(f"Attempt to add existing torrent {existing_infohash}")
+        return existing_infohash
     # Unhandled error
     raise error
 

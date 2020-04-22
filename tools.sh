@@ -21,6 +21,7 @@ tests       : run all tests for the project and display coverage when finished
 lint        : check that the project has no linting errors with black
 format      : automatically try to fix any linting problems that exist with the black formatter
 clean       : remove compiled python/docs/other build or distribution artifacts from the local project
+venv        : reset venv from scratch (removes existing venv if it exists)
 full-test   : run all the checks
 docker-test : run all the checks in a docker container"
 
@@ -44,6 +45,14 @@ elif [ "$1" = "format" ]; then
     $py_exec -m black -l 150 -t py38 downloader
 elif [ "$1" = "clean" ]; then
     find . \( -path ./.venv -o -path ./.mypy_cache \) -prune -o \( -name __pycache__ -o -name .build -o -name .coverage \) -exec rm -rfv {} +
+elif [ "$1" = "venv" ]; then
+    rm -rf .venv/
+    $py_exec -m venv .venv
+    source .venv/bin/activate
+    pip install -U pip setuptools wheel
+    pip install -U -r dev_requirements.txt
+    pip install -r requirements.txt
+    echo "virtual env set up. Run source ./.venv/bin/activate to enable it in your shell"
 elif [ "$1" = "docker-test" ]; then
     docker build . -f ./Dockerfile.test -t downloader_testing_container --pull
     docker run -it downloader_testing_container

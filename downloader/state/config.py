@@ -79,3 +79,8 @@ def get_sftp_options():
 def get_torrent_watch_dirs():
     _load_config_if_necessary()
     return config_cache["torrent_watch_dirs"]
+
+
+def get_chmod_config():
+    _load_config_if_necessary()
+    return config_cache.get("chmod_download", False)
