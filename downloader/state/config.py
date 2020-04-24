@@ -1,14 +1,14 @@
-from typing import Dict, Any
+from typing import List, Dict, Union, Any
 import json
 
 config_cache: Dict[str, Any] = {}
 
 
-def _load_config_if_necessary():
+def _load_config_if_necessary() -> None:
     global config_cache
     if not config_cache:
         with open("config.json") as f:
-            config_cache = json.loads(f.read())
+            config_cache = json.load(f)
             # Validate config file
             if not isinstance(config_cache.get("state_json"), str):
                 raise Exception("state_json must exist in config.json and be a string")
@@ -38,22 +38,12 @@ def _load_config_if_necessary():
                 raise Exception("torrent_watch_dirs must exist in config.json and be an array")
 
 
-def get_download_path() -> str:
-    _load_config_if_necessary()
-    return config_cache["download_path"]
-
-
-def get_remote_path() -> str:
-    _load_config_if_necessary()
-    return config_cache["remote_path"]
-
-
 def get_state_json_path() -> str:
     _load_config_if_necessary()
     return config_cache["state_json"]
 
 
-def get_deluge_rpc_config():
+def get_deluge_rpc_config() -> Dict[str, str]:
     _load_config_if_necessary()
     return {
         "host": config_cache["deluge_rpc_addr"],
@@ -63,7 +53,7 @@ def get_deluge_rpc_config():
     }
 
 
-def get_sftp_options():
+def get_sftp_options() -> Dict[str, str]:
     _load_config_if_necessary()
     return {
         "host": config_cache["sftp_host"],
@@ -76,11 +66,11 @@ def get_sftp_options():
     }
 
 
-def get_torrent_watch_dirs():
+def get_torrent_watch_dirs() -> List[Dict[str, str]]:
     _load_config_if_necessary()
     return config_cache["torrent_watch_dirs"]
 
 
-def get_chmod_config():
+def get_chmod_config() -> Union[bool, Dict[str, int]]:
     _load_config_if_necessary()
     return config_cache.get("chmod_download", False)

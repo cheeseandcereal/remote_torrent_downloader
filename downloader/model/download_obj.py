@@ -27,7 +27,7 @@ class DownloadObject(object):
         self.temp_download_dir = temp_download_dir
         self.final_download_dir = final_download_dir
 
-    def download(self):
+    def download(self) -> None:
         log.info(f"Starting download for {self.remote_path}")
         sftp_opts = config.get_sftp_options()
         open_cmd = f"open -p {sftp_opts['port']} sftp://{sftp_opts['username']}:{sftp_opts['password']}@{sftp_opts['host']}"

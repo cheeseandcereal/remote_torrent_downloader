@@ -9,7 +9,7 @@ log = logging.getLogger("state")
 current_state = {}
 
 
-def _load_state():
+def _load_state() -> None:
     global current_state
     try:
         with open(config.get_state_json_path()) as f:
@@ -18,7 +18,7 @@ def _load_state():
         log.warning("state file not found")
 
 
-def _save_state():
+def _save_state() -> None:
     with open(config.get_state_json_path(), "w") as f:
         json.dump(current_state, f, ensure_ascii=False, indent=2)
 
@@ -32,7 +32,7 @@ def get_watching_torrents() -> Dict[str, Dict[str, str]]:
     return current_state.get("watching_torrents", {})
 
 
-def remove_watching_torrent(torrent_id: str):
+def remove_watching_torrent(torrent_id: str) -> None:
     _load_state()
     try:
         del current_state["watching_torrents"][torrent_id]
@@ -41,7 +41,7 @@ def remove_watching_torrent(torrent_id: str):
         log.warning(f"tried to delete torrent {torrent_id} which was not being watched")
 
 
-def add_watching_torrent(torrent_id: str, temp_dir: str, final_dir: str, name: str = ""):
+def add_watching_torrent(torrent_id: str, temp_dir: str, final_dir: str, name: str = "") -> None:
     _load_state()
     new_watching = current_state.get("watching_torrents", {})
     new_watching[torrent_id] = {"temp_dir": temp_dir, "final_dir": final_dir, "name": name}

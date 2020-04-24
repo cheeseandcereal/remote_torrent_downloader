@@ -16,7 +16,7 @@ _torrent_exists_regex = re.compile(r"Torrent already in session \((.*)\)", re.IG
 client = deluge_client.client.DelugeRPCClient(**config.get_deluge_rpc_config(), decode_utf8=True, automatic_reconnect=True)
 
 
-def _connect_if_necessary():
+def _connect_if_necessary() -> None:
     if not client.connected:
         log.debug("Connecting to remote deluge daemon")
         client.connect()
