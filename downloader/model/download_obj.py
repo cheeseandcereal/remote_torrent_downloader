@@ -14,6 +14,7 @@ log = logging.getLogger("download_obj")
 
 
 _rar_digit_part_regex = re.compile(r"^\.\d{1,3}$")
+_rar_rdigit_part_regex = re.compile(r"^\.r\d{1,3}$")
 
 
 def _get_unzip_cmd(zip_path: str, extract_dir: str) -> List[str]:
@@ -70,6 +71,7 @@ class DownloadObject(object):
         shutil.move(str(temp_path), self.final_download_dir)
         # If completed, stop watching this torrent
         state.remove_watching_torrent(self.infohash)
+        log.info(f"Processing {self.remote_path} complete")
 
     def _extract_if_necessary(self, temp_path: pathlib.Path) -> None:
         if not self.directory:
@@ -82,14 +84,17 @@ class DownloadObject(object):
                 self.directory = True
             return
 
-        extract_commands = []
+        extract_commands: List[List[str]] = []
+        files_to_remove: List[pathlib.Path] = []
         # Walk through all dirs recursively to look for files to extract
         for dirpath, _, filenames in os.walk(temp_path):
             for fname in filenames:
                 curr_file = pathlib.Path(dirpath, fname)
                 if curr_file.suffix.lower() == ".zip":
+                    files_to_remove.append(curr_file)
                     extract_commands.append(_get_unzip_cmd(str(curr_file), dirpath))
                 elif curr_file.suffix.lower() == ".rar":
+                    files_to_remove.append(curr_file)
                     first_part = True
                     if len(curr_file.suffixes) > 1:
                         # Rar files can be split into parts; If this is a multipart rar, we don't want to extract anything except the first part
@@ -103,12 +108,18 @@ class DownloadObject(object):
                                 first_part = False
                     if first_part:
                         extract_commands.append(_get_unrar_cmd(str(curr_file), dirpath))
+                elif _rar_rdigit_part_regex.match(curr_file.suffix.lower()):
+                    # Ensure we remove .r## files after extraction as well
+                    files_to_remove.append(curr_file)
         # Run actual extract commands
         if extract_commands:
             log.info(f"Extracting local files from {self.remote_path}")
         for cmd in extract_commands:
             log.debug(f"running extract command: {cmd}")
-            subprocess.run(cmd, check=True, stderr=sys.stderr)
+            subprocess.run(cmd, check=True)
+        # Remove residual archive files
+        for path in files_to_remove:
+            path.unlink()
 
     def _chmod_if_necessary(self, temp_path: pathlib.Path) -> None:
         chmod_config = config.get_chmod_config()
