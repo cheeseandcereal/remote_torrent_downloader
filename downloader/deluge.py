@@ -22,13 +22,14 @@ def _connect_if_necessary() -> None:
         client.connect()
 
 
-def _filter_torrents_status_results(torrent_status_results: Any, watching_torrents: Dict[str, Dict[str, str]]) -> List[DownloadObject]:
+def _filter_torrents_status_results(torrent_status_results: Any, watching_torrents: Dict[str, Dict[str, Any]]) -> List[DownloadObject]:
     download_list: List[DownloadObject] = []
     for infohash, torrent_data in torrent_status_results.items():
         completed_time = torrent_data.get("completed_time", 0)
         if completed_time > 0:  # Only completed torrents
             temp_dir = watching_torrents[infohash]["temp_dir"]
             final_dir = watching_torrents[infohash]["final_dir"]
+            auto_extract = watching_torrents[infohash].get("auto_extract", False)
             base_dir = torrent_data["download_location"]
             base_folders = set()
             for file_data in torrent_data["files"]:
@@ -37,16 +38,20 @@ def _filter_torrents_status_results(torrent_status_results: Any, watching_torren
                     base_folders.add(path.parts[0])
                 elif len(path.parts) == 1:  # This file is at the root of the torrent
                     download_list.append(
-                        DownloadObject(infohash, str(PurePosixPath(base_dir, path.parts[0])), completed_time, False, temp_dir, final_dir)
+                        DownloadObject(
+                            infohash, str(PurePosixPath(base_dir, path.parts[0])), completed_time, False, temp_dir, final_dir, auto_extract
+                        )
                     )
             for folder in base_folders:
-                download_list.append(DownloadObject(infohash, str(PurePosixPath(base_dir, folder)), completed_time, True, temp_dir, final_dir))
+                download_list.append(
+                    DownloadObject(infohash, str(PurePosixPath(base_dir, folder)), completed_time, True, temp_dir, final_dir, auto_extract)
+                )
     # Sort by timestamp before returning
     download_list.sort(key=lambda x: x.timestamp)
     return download_list
 
 
-def get_download_objects_for_watching_torrents(watching_torrents: Dict[str, Dict[str, str]]) -> List[DownloadObject]:
+def get_download_objects_for_watching_torrents(watching_torrents: Dict[str, Dict[str, Any]]) -> List[DownloadObject]:
     _connect_if_necessary()
     torrents = client.call("core.get_torrents_status", {"id": list(watching_torrents.keys())}, ["completed_time", "download_location", "files"])
     return _filter_torrents_status_results(torrents, watching_torrents)

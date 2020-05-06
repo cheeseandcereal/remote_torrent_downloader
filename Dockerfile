@@ -1,7 +1,7 @@
 FROM python:3.8-alpine AS base
 
 WORKDIR /usr/src/app
-RUN apk --no-cache upgrade && apk --no-cache add lftp
+RUN apk --no-cache upgrade && apk --no-cache add lftp unrar
 
 FROM base AS builder
 # Install build dependencies

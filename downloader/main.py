@@ -22,6 +22,7 @@ def main() -> None:
         dir_path = pathlib.Path(watch_dir["directory"])
         if not dir_path.is_dir() or not dir_path.is_absolute():
             raise Exception("provided watch directory is either not absolute or does not exist")
+        auto_extract = watch_dir.get("attempt_extract", False)
 
         for f in os.listdir(dir_path):
             file_path = pathlib.Path(dir_path, f)
@@ -31,7 +32,7 @@ def main() -> None:
                 infohash = deluge.add_torrent_by_file(str(file_path))
                 # Add torrent to persistent state for watching
                 ext = f.rfind(".")
-                state.add_watching_torrent(infohash, str(temp_dir), str(final_dir), f[:ext] if ext > 0 else f)
+                state.add_watching_torrent(infohash, str(temp_dir), str(final_dir), f[:ext] if ext > 0 else f, auto_extract)
                 # Remove the processed torrent file
                 os.remove(file_path)
 

@@ -35,6 +35,7 @@ An example configuration:
       "directory": "/home/user/Downloads/torrents",  // Directory to watch for .torrent or .magnet files
       "temp_download_dir": "/tmp",  // Used for temporary storage for in-progress downloads
       "final_download_dir": "/home/user/Downloads"  // Where finished downloads are moved
+      "attempt_extract": true  // (Optional) Attempt to extract downloaded files (unix only) (default false)
     }
   ]
 }
@@ -58,8 +59,9 @@ In order to run this, there are different requirements for the local machine run
 - Local Machine (without Docker)
   - Python 3.6+ with the packages from `requirements.txt` installed (`python3 -m pip install -r requirements.txt`)
   - lftp must be installed and in the [PATH](<https://en.wikipedia.org/wiki/PATH_(variable)>)
-  - This _should_ be able to be ran on windows or any unix system, but only tested on linux.
+  - This _should_ be able to be ran on windows or any unix system, but only tested on linux. (Note extraction does _NOT_ work on windows.)
     (If there are bugs running this on another OS, please report them)
+  - If using extraction, ensure you have `unrar` and `unzip` installed
 
 ### Starting
 

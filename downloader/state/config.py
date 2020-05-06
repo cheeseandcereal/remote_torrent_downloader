@@ -1,4 +1,4 @@
-from typing import List, Dict, Union, Any
+from typing import List, Dict, Any
 import json
 
 config_cache: Dict[str, Any] = {}
@@ -66,11 +66,11 @@ def get_sftp_options() -> Dict[str, str]:
     }
 
 
-def get_torrent_watch_dirs() -> List[Dict[str, str]]:
+def get_torrent_watch_dirs() -> List[Dict[str, Any]]:
     _load_config_if_necessary()
     return config_cache["torrent_watch_dirs"]
 
 
-def get_chmod_config() -> Union[bool, Dict[str, int]]:
+def get_chmod_config() -> Dict[str, int]:
     _load_config_if_necessary()
     return config_cache.get("chmod_download", False)
