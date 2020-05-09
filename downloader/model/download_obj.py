@@ -33,9 +33,18 @@ class DownloadObject(object):
     temp_download_dir: str
     final_download_dir: str
     auto_extract: bool
+    auto_delete_extracted: bool
 
     def __init__(
-        self, infohash: str, remote_path: str, timestamp: int, directory: bool, temp_download_dir: str, final_download_dir: str, auto_extract: bool
+        self,
+        infohash: str,
+        remote_path: str,
+        timestamp: int,
+        directory: bool,
+        temp_download_dir: str,
+        final_download_dir: str,
+        auto_extract: bool,
+        auto_delete_extracted: bool,
     ):
         self.infohash = infohash
         self.remote_path = remote_path
@@ -44,6 +53,7 @@ class DownloadObject(object):
         self.temp_download_dir = temp_download_dir
         self.final_download_dir = final_download_dir
         self.auto_extract = auto_extract
+        self.auto_delete_extracted = auto_delete_extracted
 
     def download(self) -> None:
         log.info(f"Starting download for {self.remote_path}")
@@ -117,9 +127,10 @@ class DownloadObject(object):
         for cmd in extract_commands:
             log.debug(f"running extract command: {cmd}")
             subprocess.run(cmd, check=True)
-        # Remove residual archive files
-        for path in files_to_remove:
-            path.unlink()
+        # Remove residual archive files if necessary
+        if self.auto_delete_extracted:
+            for path in files_to_remove:
+                path.unlink()
 
     def _chmod_if_necessary(self, temp_path: pathlib.Path) -> None:
         chmod_config = config.get_chmod_config()

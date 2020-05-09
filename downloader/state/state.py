@@ -28,6 +28,7 @@ def get_watching_torrents() -> Dict[str, Dict[str, Any]]:
        temp_dir: temporary local download directory
        final_dir: final local download directory (to move too upon download completion)
        auto_extract: bool of whether or not to attempt auto extraction to the download (if necesssary)
+       auto_delete_extracted: bool of whether or not to automatically delete archive files after auto extracting (if necessary)
     """
     _load_state()
     return current_state.get("watching_torrents", {})
@@ -42,9 +43,17 @@ def remove_watching_torrent(torrent_id: str) -> None:
         log.warning(f"tried to delete torrent {torrent_id} which was not being watched")
 
 
-def add_watching_torrent(torrent_id: str, temp_dir: str, final_dir: str, name: str = "", auto_extract: bool = False) -> None:
+def add_watching_torrent(
+    torrent_id: str, temp_dir: str, final_dir: str, name: str = "", auto_extract: bool = False, auto_delete_extracted: bool = False
+) -> None:
     _load_state()
     new_watching = current_state.get("watching_torrents", {})
-    new_watching[torrent_id] = {"temp_dir": temp_dir, "final_dir": final_dir, "name": name, "auto_extract": auto_extract}
+    new_watching[torrent_id] = {
+        "temp_dir": temp_dir,
+        "final_dir": final_dir,
+        "name": name,
+        "auto_extract": auto_extract,
+        "auto_delete_extracted": auto_delete_extracted,
+    }
     current_state["watching_torrents"] = new_watching
     _save_state()

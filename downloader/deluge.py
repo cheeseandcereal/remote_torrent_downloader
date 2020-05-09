@@ -30,6 +30,7 @@ def _filter_torrents_status_results(torrent_status_results: Any, watching_torren
             temp_dir = watching_torrents[infohash]["temp_dir"]
             final_dir = watching_torrents[infohash]["final_dir"]
             auto_extract = watching_torrents[infohash].get("auto_extract", False)
+            auto_delete_extracted = watching_torrents[infohash].get("auto_delete_extracted", False)
             base_dir = torrent_data["download_location"]
             base_folders = set()
             for file_data in torrent_data["files"]:
@@ -39,12 +40,21 @@ def _filter_torrents_status_results(torrent_status_results: Any, watching_torren
                 elif len(path.parts) == 1:  # This file is at the root of the torrent
                     download_list.append(
                         DownloadObject(
-                            infohash, str(PurePosixPath(base_dir, path.parts[0])), completed_time, False, temp_dir, final_dir, auto_extract
+                            infohash,
+                            str(PurePosixPath(base_dir, path.parts[0])),
+                            completed_time,
+                            False,
+                            temp_dir,
+                            final_dir,
+                            auto_extract,
+                            auto_delete_extracted,
                         )
                     )
             for folder in base_folders:
                 download_list.append(
-                    DownloadObject(infohash, str(PurePosixPath(base_dir, folder)), completed_time, True, temp_dir, final_dir, auto_extract)
+                    DownloadObject(
+                        infohash, str(PurePosixPath(base_dir, folder)), completed_time, True, temp_dir, final_dir, auto_extract, auto_delete_extracted
+                    )
                 )
     # Sort by timestamp before returning
     download_list.sort(key=lambda x: x.timestamp)
