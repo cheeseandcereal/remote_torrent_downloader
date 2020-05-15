@@ -74,3 +74,24 @@ If not using docker, download the source code here, ensure the above requirement
 create and ensure you have a config.json in your working directory,
 then start the program with `python3 -m downloader.main` in a terminal of some sort.
 (`python3` may need to be replaced with `python` depening on how it was installed).
+
+#### Systemd Example Service
+
+The following is an example systemd service file if running on linux with systemd and not docker.
+
+```systemd
+[Unit]
+Description=Remote Deluge Fetcher
+After=network-online.target
+
+[Service]
+# Set unbuffered so logging works when running under systemd
+Environment="PYTHONUNBUFFERED=true"
+WorkingDirectory=/directory/of/code/with/configjson/
+ExecStart=/usr/bin/python3 -m downloader.main
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=default.target
+```
