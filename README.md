@@ -1,10 +1,10 @@
-# Deluge Remote Auto Downloader/Fetcher
+# Torrent Remote Auto Downloader/Fetcher
 
-This is a program to bridge the gap between downloading a torrent file with a remote deluge daemon,
+This is a program to bridge the gap between downloading a torrent file with a remote torrent daemon,
 and then automatically fetching the resulting files with [lftp(1)](https://lftp.yar.ru/) once completed.
 
 This was specifically written to work with the `Torrent Blackhole` option in [sonarr](https://sonarr.tv/)
-for the usecase of downloading with deluge on a completely remote machine (and no deluge web-ui requirement).
+for the usecase of downloading and seeding with torrent daemon on a completely remote machine.
 
 ## Configuration
 
@@ -68,7 +68,7 @@ In order to run this, there are different requirements for the local machine run
 
 If using docker, simply run the container, mounting your desired config.json into `/usr/src/app/config.json`, and any other necessary directories.
 
-i.e. `docker run -v $(pwd)/config.json:/usr/src/app/config.json -v /home/user/Downloads:/home/user/Downloads cheeseandcereal/remote_deluge_downloader:latest`
+i.e. `docker run -v $(pwd)/config.json:/usr/src/app/config.json -v /home/user/Downloads:/home/user/Downloads cheeseandcereal/remote_torrent_downloader:latest`
 
 If not using docker, download the source code here, ensure the above requirements are met,
 create and ensure you have a config.json in your working directory,
@@ -81,7 +81,7 @@ The following is an example systemd service file if running on linux with system
 
 ```systemd
 [Unit]
-Description=Remote Deluge Fetcher
+Description=Remote Torrent Fetcher
 After=network-online.target
 
 [Service]
