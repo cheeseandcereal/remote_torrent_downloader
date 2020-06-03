@@ -92,7 +92,8 @@ class DownloadObject(object):
                 temp_path.mkdir()
                 temp_rename_path.rename(pathlib.Path(temp_path, temp_path.name))
                 self.directory = True
-            return
+            else:
+                return
 
         extract_commands: List[List[str]] = []
         files_to_remove: List[pathlib.Path] = []

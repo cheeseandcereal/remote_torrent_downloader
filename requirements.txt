@@ -1,1 +1,2 @@
 deluge-client==1.8.0
+transmission-putio==1.0.4

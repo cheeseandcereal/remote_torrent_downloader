@@ -3,9 +3,17 @@ import time
 import pathlib
 import logging
 
-from downloader import deluge
 from downloader.state import state
 from downloader.state import config
+
+# Conditionally import our torrent client based on the config type
+_torrent_client_type = config.get_torrent_client_type()
+if _torrent_client_type == "deluge":
+    from downloader.torrent_clients import deluge as torrent_client
+elif _torrent_client_type == "transmission":
+    from downloader.torrent_clients import transmission as torrent_client  # type: ignore
+else:
+    raise NotImplementedError(f"Torrent client type {_torrent_client_type} not implemented")
 
 log = logging.getLogger("main")
 
@@ -28,9 +36,9 @@ def main() -> None:
         for f in os.listdir(dir_path):
             file_path = pathlib.Path(dir_path, f)
             if file_path.is_file():
-                log.info(f"Adding {file_path} to deluge")
-                # Add torrent file to remote deluge daemon
-                infohash = deluge.add_torrent_by_file(str(file_path))
+                log.info(f"Adding {file_path} to torrent client")
+                # Add torrent file to remote torrent daemon
+                infohash = torrent_client.add_torrent_by_file(str(file_path))
                 # Add torrent to persistent state for watching
                 ext = f.rfind(".")
                 state.add_watching_torrent(infohash, str(temp_dir), str(final_dir), f[:ext] if ext > 0 else f, auto_extract, auto_delete_extracted)
@@ -39,8 +47,8 @@ def main() -> None:
 
     # Get currently watching torrents and try to download them if ready
     watching_torrents = state.get_watching_torrents()
-    log.debug("Checking deluge for completed torrents that should be downloaded")
-    for obj in deluge.get_download_objects_for_watching_torrents(watching_torrents):
+    log.debug("Checking torrent client for completed torrents that should be downloaded")
+    for obj in torrent_client.get_download_objects_for_watching_torrents(watching_torrents):
         try:
             obj.download()
         except Exception:

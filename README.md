@@ -19,17 +19,26 @@ An example configuration:
     "file": 436,  // 436 == 0o664
     "folder": 509  // 509 == 0o775
   },
-  "sftp_host": "my.remote.host",
+  "sftp_host": "my.remote.host.or.ip",
   "sftp_port": 22,
   "sftp_user": "user",
   "sftp_password": "leave as empty string if using public key",
   "pget_conn": 25,  // when torrent is a single file, this is how many connections will be used with lftp pget
   "mirror_parallel": 4,  // when torrent is a directory, this is how many files are downloaded simoultaneously
   "mirror_conn": 7,  // when torrent is a directory, this is how many connections each currently downloading file gets
-  "deluge_rpc_addr": "my.remote.host",
-  "deluge_rpc_port": 54321,
-  "deluge_rpc_user": "user",
-  "deluge_rpc_password": "someRPCpasswordFromDelugeDaemon",
+  "torrent_client_type": "deluge", // deluge or transmission
+  "torrent_client_options": { // note you only need to specify deluge OR transmission options here, dependent on torrent_client_type above
+    "deluge_rpc_addr": "my.remote.host.or.ip",
+    "deluge_rpc_port": 58846,
+    "deluge_rpc_user": "user",
+    "deluge_rpc_password": "someRPCpasswordFromDelugeDaemon",
+    "transmission_rpc_addr": "my.remote.host.or.ip",
+    "transmission_rpc_port": 9091,
+    "transmission_rpc_path": "/transmission/rpc",
+    "transmission_rpc_user": "user",
+    "transmission_rpc_password": "someRPCpasswordFromTransmissionDaemon",
+    "transmission_rpc_verified_tls": true // note that unverified ssl/tls (such as with self-signed cert) is not currently supported
+  },
   "torrent_watch_dirs": [  // Specify as many as desired
     {
       "directory": "/home/user/Downloads/torrents",  // Directory to watch for .torrent or .magnet files
@@ -46,15 +55,19 @@ An example configuration:
 
 ### Requirements
 
-In order to run this, there are different requirements for the local machine running this and the remote machine running deluge.
+In order to run this, there are different requirements for the local machine running this and the remote machine running the torrent daemon.
 
 - Remote Machine
   - Should be linux (may work on unix?)
-  - Running deluge daemon (only tested with 2.X, but should work with 1.X as well),
-    accessible over the network with the specified RPC options in the config.
-    See these [deluge docs](https://dev.deluge-torrent.org/wiki/UserGuide/ThinClient) for more information
+  - Running torrent daemon
+    - Deluge daemon (only tested with 2.X, but should work with 1.X as well),
+      accessible over the network with the specified RPC options in the config.
+      See these [deluge docs](https://dev.deluge-torrent.org/wiki/UserGuide/ThinClient) for more info
+    - OR
+    - Transmission daemon (only version 3.00+) accessible over the network with the specified RPC options in the config.
+      See these [transmission docs](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files#rpc) for more info
   - Running sshd with sftp accessible over the network using the specified SFTP options in the config.
-    (Only tested with openssh, but may work with other sftp servers)
+    (Only tested with openssh, but should work with other sftp servers)
 - Local Machine (with Docker)
   - No additional requirements. See below if you do not wish to use docker.
 - Local Machine (without Docker)

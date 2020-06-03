@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, cast
 import re
 import logging
 from base64 import b64encode
@@ -13,12 +13,15 @@ log = logging.getLogger("deluge")
 
 _torrent_exists_regex = re.compile(r"Torrent already in session \((.*)\)", re.IGNORECASE)
 
-client = deluge_client.client.DelugeRPCClient(**config.get_deluge_rpc_config(), decode_utf8=True, automatic_reconnect=True)
+# Will get created when a method using the client is called
+client = cast(deluge_client.client.DelugeRPCClient, None)
 
 
 def _connect_if_necessary() -> None:
-    if not client.connected:
+    global client
+    if not client or not client.connected:
         log.debug("Connecting to remote deluge daemon")
+        client = deluge_client.client.DelugeRPCClient(**config.get_torrent_client_config(), decode_utf8=True, automatic_reconnect=True)
         client.connect()
 
 
@@ -79,7 +82,7 @@ def _check_torrent_exists_err(error: deluge_client.client.RemoteException) -> st
 
 
 def add_torrent_by_file(torrent_file_path: str) -> str:
-    """Add a torrent from a local file and return its infohash (torrent id)"""
+    """Add a torrent from a local file and return its infohash"""
     _connect_if_necessary()
     try:
         path = Path(torrent_file_path)
@@ -94,7 +97,7 @@ def add_torrent_by_file(torrent_file_path: str) -> str:
 
 
 def add_torrent_by_uri(torrent_uri: str) -> str:
-    """Add a torrent from a uri and return its infohash (torrent id)"""
+    """Add a torrent from a uri and return its infohash"""
     _connect_if_necessary()
     try:
         if torrent_uri.startswith("magnet"):
