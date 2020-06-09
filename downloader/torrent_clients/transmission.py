@@ -18,7 +18,7 @@ def _connect_if_necessary() -> None:
     global client
     if not client:
         log.info("Connecting to transmission daemon")
-        client = Transmission(**config.get_torrent_client_config())
+        client = Transmission(**config.get_torrent_client_config(), timeout=60)
 
 
 def _filter_torrents_status_results(torrent_status_results: Any, watching_torrents: Dict[str, Dict[str, Any]]) -> List[DownloadObject]:
