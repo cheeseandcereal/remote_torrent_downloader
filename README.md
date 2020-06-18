@@ -43,8 +43,8 @@ An example configuration:
     {
       "directory": "/home/user/Downloads/torrents",  // Directory to watch for .torrent or .magnet files
       "temp_download_dir": "/tmp",  // Used for temporary storage for in-progress downloads
-      "final_download_dir": "/home/user/Downloads"  // Where finished downloads are moved
-      "attempt_extract": true  // (Optional) Attempt to extract downloaded files (unix only) (default false)
+      "final_download_dir": "/home/user/Downloads",  // Where finished downloads are moved
+      "attempt_extract": true,  // (Optional) Attempt to extract downloaded files (unix only) (default false)
       "auto_delete_extracted": true // (Optional) When attempt_extract is true, delete the archive files after extracting (default false)
     }
   ]
