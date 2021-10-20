@@ -25,10 +25,10 @@ def _save_state() -> None:
 
 def get_watching_torrents() -> Dict[str, Dict[str, Any]]:
     """Returns a dictionary where the keys are the infohash of a torrent (torrent id) with the items:
-       temp_dir: temporary local download directory
-       final_dir: final local download directory (to move too upon download completion)
-       auto_extract: bool of whether or not to attempt auto extraction to the download (if necesssary)
-       auto_delete_extracted: bool of whether or not to automatically delete archive files after auto extracting (if necessary)
+    temp_dir: temporary local download directory
+    final_dir: final local download directory (to move too upon download completion)
+    auto_extract: bool of whether or not to attempt auto extraction to the download (if necesssary)
+    auto_delete_extracted: bool of whether or not to automatically delete archive files after auto extracting (if necessary)
     """
     _load_state()
     return current_state.get("watching_torrents", {})
