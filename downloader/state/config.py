@@ -70,7 +70,7 @@ def get_torrent_client_type() -> str:
     return config_cache["torrent_client_type"]
 
 
-def get_torrent_client_config() -> Dict[str, str]:
+def get_torrent_client_config() -> Dict[str, Any]:
     _load_config_if_necessary()
     options = config_cache["torrent_client_options"]
     if config_cache["torrent_client_type"] == "deluge":
@@ -82,12 +82,12 @@ def get_torrent_client_config() -> Dict[str, str]:
         }
     elif config_cache["torrent_client_type"] == "transmission":
         return {
+            "protocol": "https" if options["transmission_rpc_verified_tls"] else "http",
+            "username": options["transmission_rpc_user"],
+            "password": options["transmission_rpc_password"],
             "host": options["transmission_rpc_addr"],
             "port": options["transmission_rpc_port"],
             "path": options["transmission_rpc_path"],
-            "username": options["transmission_rpc_user"],
-            "password": options["transmission_rpc_password"],
-            "ssl": options["transmission_rpc_verified_tls"],
         }
     else:
         raise NotImplementedError(f"torrent client type {config_cache['torrent_client_type']} not implemented")

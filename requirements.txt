@@ -1,2 +1,2 @@
-deluge-client==1.9.0
-transmission-putio==1.0.4
+deluge-client==1.10.2
+transmission-rpc==7.0.10
