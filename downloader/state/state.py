@@ -1,12 +1,12 @@
-from typing import Dict, Any
 import json
 import logging
+from typing import Any, Dict
 
 from downloader.state import config
 
 log = logging.getLogger("state")
 
-current_state = {}
+current_state: Dict[str, Any] = {}
 
 
 def _load_state() -> None:

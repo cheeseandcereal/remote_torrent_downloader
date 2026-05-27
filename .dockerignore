@@ -34,5 +34,6 @@ state.json
 .gitignore
 .dockerignore
 Dockerfile
+Dockerfile.test
 README*
 .github

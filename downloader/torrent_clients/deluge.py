@@ -1,8 +1,8 @@
-from typing import List, Dict, Any, cast
-import re
 import logging
+import re
 from base64 import b64encode
-from pathlib import PurePosixPath, Path
+from pathlib import Path, PurePosixPath
+from typing import Any, Dict, List, cast
 
 import deluge_client.client
 

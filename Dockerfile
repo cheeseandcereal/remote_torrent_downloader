@@ -1,22 +1,29 @@
 FROM linuxserver/unrar:latest AS unrar
-FROM python:3.12-alpine AS base
-
-WORKDIR /usr/src/app
+FROM python:3.14-alpine AS base
+WORKDIR /app
 RUN apk --no-cache upgrade && apk --no-cache add lftp
 
 FROM base AS builder
-# Install build dependencies
-# RUN apk --no-cache add make
-COPY requirements.txt .
-RUN python3 -m pip install --no-cache-dir -r requirements.txt
+COPY --from=ghcr.io/astral-sh/uv:0.11.16-python3.14-alpine /usr/local/bin/uv /usr/local/bin/uv
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project --no-dev
+
+COPY . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-dev
 
 FROM base AS release
 # Copy compiled unrar
 COPY --from=unrar /usr/bin/unrar-alpine /usr/bin/unrar
 # Copy the installed python dependencies from the builder
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /app/.venv /app/.venv
 # Copy the app
-COPY --chown=1000:1000 . .
+COPY --chown=1000:1000 downloader ./downloader
+ENV PATH="/app/.venv/bin:$PATH"
 
 USER 1000:1000
-CMD [ "python", "-m", "downloader.main" ]
+CMD ["python", "-m", "downloader.main"]

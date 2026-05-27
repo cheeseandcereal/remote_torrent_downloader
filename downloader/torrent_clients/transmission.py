@@ -1,6 +1,6 @@
-from typing import List, Dict, Any, cast, TYPE_CHECKING
 import logging
-from pathlib import PurePosixPath, Path
+from pathlib import Path, PurePosixPath
+from typing import TYPE_CHECKING, Any, Dict, List, cast
 
 from transmission_rpc import Client
 
@@ -28,7 +28,7 @@ def _filter_torrents_status_results(torrent_status_results: List["Torrent"], wat
     download_list: List[DownloadObject] = []
     for torrent_data in torrent_status_results:
         infohash = torrent_data.hash_string
-        completed_time = int(torrent_data.done_date.timestamp())
+        completed_time = int(torrent_data.done_date.timestamp()) if torrent_data.done_date else 0
         temp_dir = watching_torrents[infohash]["temp_dir"]
         final_dir = watching_torrents[infohash]["final_dir"]
         auto_extract = watching_torrents[infohash].get("auto_extract", False)
@@ -78,7 +78,7 @@ def get_download_objects_for_watching_torrents(watching_torrents: Dict[str, Dict
     if not wanted_ids:
         return []
     # Now get the all the relevant info for our wanted torrent ids
-    torrents = client.get_torrents(wanted_ids, arguments=["hashString", "downloadDir", "doneDate", "files"])
+    torrents = client.get_torrents(wanted_ids, arguments=["hashString", "downloadDir", "doneDate", "files"])  # type: ignore[arg-type]
     return _filter_torrents_status_results(torrents, watching_torrents)
 
 

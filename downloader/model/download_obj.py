@@ -1,14 +1,13 @@
-from typing import List
-import re
+import logging
 import os
-import sys
 import pathlib
+import re
 import shutil
 import subprocess
-import logging
+import sys
+from typing import List
 
-from downloader.state import config
-from downloader.state import state
+from downloader.state import config, state
 
 log = logging.getLogger("download_obj")
 

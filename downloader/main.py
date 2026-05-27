@@ -1,10 +1,9 @@
-import os
-import time
-import pathlib
 import logging
+import os
+import pathlib
+import time
 
-from downloader.state import state
-from downloader.state import config
+from downloader.state import config, state
 
 # Conditionally import our torrent client based on the config type
 _torrent_client_type = config.get_torrent_client_type()

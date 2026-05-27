@@ -71,7 +71,7 @@ In order to run this, there are different requirements for the local machine run
 - Local Machine (with Docker)
   - No additional requirements. See below if you do not wish to use docker.
 - Local Machine (without Docker)
-  - Python 3.6+ with the packages from `requirements.txt` installed (`python3 -m pip install -r requirements.txt`)
+  - Python 3.14+ with dependencies installed (`uv sync --no-dev`, or `pip install -r requirements.txt`)
   - lftp must be installed and in the [PATH](<https://en.wikipedia.org/wiki/PATH_(variable)>)
   - This _should_ be able to be ran on windows or any unix system, but only tested on linux. (Note extraction does _NOT_ work on windows.)
     (If there are bugs running this on another OS, please report them)
@@ -79,14 +79,29 @@ In order to run this, there are different requirements for the local machine run
 
 ### Starting
 
-If using docker, simply run the container, mounting your desired config.json into `/usr/src/app/config.json`, and any other necessary directories.
+If using docker, simply run the container, mounting your desired config.json into `/app/config.json`, and any other necessary directories.
 
-i.e. `docker run -v $(pwd)/config.json:/usr/src/app/config.json -v /home/user/Downloads:/home/user/Downloads cheeseandcereal/remote_torrent_downloader:latest`
+i.e. `docker run -v $(pwd)/config.json:/app/config.json -v /home/user/Downloads:/home/user/Downloads cheeseandcereal/remote_torrent_downloader:latest`
 
 If not using docker, download the source code here, ensure the above requirements are met,
 create and ensure you have a config.json in your working directory,
 then start the program with `python3 -m downloader.main` in a terminal of some sort.
 (`python3` may need to be replaced with `python` depening on how it was installed).
+
+## Development
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management and
+[ruff](https://docs.astral.sh/ruff/) for linting/formatting.
+
+```sh
+uv sync          # install all dependencies (including dev)
+make lint        # check for lint/type errors
+make format      # auto-fix lint issues and format code
+make tests       # run unit tests with coverage
+make full-test   # run all checks (requirements staleness, lint, tests)
+make docker-test # run full-test inside a Docker container
+make lock        # regenerate uv.lock and requirements.txt
+```
 
 #### Systemd Example Service
 
